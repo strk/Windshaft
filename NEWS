@@ -1,3 +1,7 @@
+ Enhancements:
+
+  - Have png tiles default to 8bit format, for reduced network load
+
 Version 0.22.0
 2014-MM-DD
 
