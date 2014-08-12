@@ -24,7 +24,7 @@ suite('torque', function() {
     if ( ! ServerOptions.mapnik ) ServerOptions.mapnik = {};
     ServerOptions.mapnik.vector_datasources = {
       'fs': {
-        tiles: "file://test/fixtures/{layers}"
+        tiles: "file://test/fixtures/1.1.1.vector.pbf"
       },
       'mapzen': {
         tiles: "http://vector.mapzen.com/osm/{layers}/{z}/{x}/{y}.mbox"
@@ -68,7 +68,7 @@ suite('torque', function() {
         datasource: 'fs',
         layers: [
            { options: {
-               sql: '1.1.1.vector.pbf',
+               sql: 'coastline',
                cartocss: '#layer { line-color:black; }', 
                cartocss_version: '2.0.1'
              } }
