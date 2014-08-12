@@ -12,6 +12,13 @@ var config = {
     grainstore: {
                  datasource: {user:'postgres', host: '127.0.0.1', port: 5432}
     }, //see grainstore npm for other options
+    mapnik: {
+      vector_datasources: {
+        mapzen: {
+          tiles: "http://vector.mapzen.com/osm/{layers}/{z}/{x}/{y}.mapbox"
+        }
+      }
+    },
     redis: {host: '127.0.0.1', port: 6379},
     enable_cors: true,
     req2params: function(req, callback){
@@ -28,8 +35,10 @@ var config = {
     }
 };
 
+global.environment = {}
+
 // Initialize tile server on port 4000
 var ws = new Windshaft.Server(config);
 ws.listen(4000);
 
-console.log("map tiles are now being served out of: http://localhost:4000" + config.base_url_mapconfig);
+console.log("map tiles are now being served out of: http://localhost:4000" + config.base_url + '/:z/:x/:y');
