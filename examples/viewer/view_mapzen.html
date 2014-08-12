@@ -13,21 +13,15 @@
             var map = new L.Map('map');
             var baseURL_def = "http://localhost:4000/database/template_postgis/layergroup";
             var mapConfig_def = JSON.stringify({
-              version:"1.2.0",
+              version:"1.1.0", // TODO: should be 1.2.0 +
+              datasource:"mapzen",
               layers:[
                 { type:"mapnik",
                   options:{
-                    sql: "select ST_AsRaster(ST_Buffer('SRID=3857;LINESTRING(-1e7 -1e7, 1e7 1e7)'::geometry, 1e6, 4), 1e5, -1e5, '8BUI', 64) g",
+                    sql: "landuse",
                     geom_column: "g",
                     geom_type: "raster",
                     cartocss: "#style{ raster-opacity: 1;}",
-                    cartocss_version: "2.0.0"
-                  }},
-                { type:"mapnik",
-                  options:{
-                    sql: "select ST_Buffer(ST_SetSRID(ST_MakePoint(0,0),3857),5e6,4) g",
-                    geom_column: "g",
-                    cartocss: "#s { polygon-fill: blue; line-color: red; }",
                     cartocss_version: "2.0.0"
                   }}
               ]

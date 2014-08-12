@@ -11,6 +11,13 @@ var config = {
     grainstore: {
                  datasource: {user:'postgres', host: '127.0.0.1', port: 5432}
     }, //see grainstore npm for other options
+    mapnik: {
+      vector_datasources: {
+        mapzen: {
+          tiles: "http://vector.mapzen.com/osm/{layers}/{z}/{x}/{y}.mapbox"
+        }
+      }
+    },
     redis: {host: '127.0.0.1', port: 6379},
     enable_cors: true,
     req2params: function(req, callback){
@@ -26,6 +33,8 @@ var config = {
         callback(null,req);
     }
 };
+
+global.environment = {}
 
 // Initialize tile server on port 4000
 var ws = new Windshaft.Server(config);
