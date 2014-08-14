@@ -13,7 +13,7 @@ var   assert        = require('../support/assert')
     , ServerOptions = require('../support/server_options')
     , http          = require('http');
 
-suite('torque', function() {
+suite('mvt', function() {
 
     ////////////////////////////////////////////////////////////////////
     //
@@ -27,10 +27,13 @@ suite('torque', function() {
     if ( ! ServerOptions.mapnik ) ServerOptions.mapnik = {};
     ServerOptions.mapnik.vector_datasources = {
       'fs': {
-        tiles: "file://test/fixtures/1.1.1.vector.pbf"
+        tiles: "file://test/fixtures/vector.coastline.1.1.1.pbfz"
+      },
+      'fs2': {
+        tiles: "file://test/fixtures/vector.coastline.1.1.1.pbf"
       },
       'http': {
-        tiles: "http://localhost:" + res_serv_port + "/1.1.1.vector.pbf"
+        tiles: "http://localhost:" + res_serv_port + "/vector.coastline.1.1.1.pbfz"
       }
     };
     var IMAGE_EQUALS_TOLERANCE_PER_MIL = 20;
@@ -135,7 +138,7 @@ suite('torque', function() {
           assert.equal(res.statusCode, 200, res.body);
           assert.equal(res.headers['content-type'], "image/png");
           assert.imageEqualsFile(res.body,
-              './test/fixtures/1.1.1.vector.pbf.png',
+              './test/fixtures/vector.coastline.1.1.1.png',
               IMAGE_EQUALS_TOLERANCE_PER_MIL, this);
         },
         function finish(err) {
@@ -218,7 +221,90 @@ suite('torque', function() {
           assert.equal(res.statusCode, 200, res.body);
           assert.equal(res.headers['content-type'], "image/png");
           assert.imageEqualsFile(res.body,
-              './test/fixtures/1.1.1.vector.pbf.png',
+              './test/fixtures/vector.coastline.1.1.1.png',
+              IMAGE_EQUALS_TOLERANCE_PER_MIL, this);
+        },
+        function finish(err) {
+          var errors = [];
+          if ( err ) {
+            if ( ! expected_token ) { done(err); return; }
+            errors.push('' + err);
+          }
+          redis_client.exists("map_cfg|" +  expected_token, function(err, exists) {
+              if ( err ) errors.push(err.message);
+              assert.ok(exists, "Missing expected token " + expected_token + " from redis");
+              redis_client.del("map_cfg|" +  expected_token, function(err) {
+                if ( err ) errors.push(err.message);
+                if ( errors.length ) done(new Error(errors));
+                else done(null);
+              });
+          });
+        }
+      );
+    });
+
+    test.skip("uncompressed", function(done) {
+
+      var layergroup =  {
+        // TODO: increment minor version, for 'datasource' support 
+        version: '1.1.0',
+        datasource: 'fs2',
+        layers: [
+           { options: {
+               sql: 'roads',
+               cartocss: '#layer { line-color:black; line-width:1; }', 
+               cartocss_version: '2.0.1'
+             } }
+        ]
+      };
+
+      var expected_token; 
+      Step(
+        function create_map()
+        {
+          var next = this;
+          assert.response(server, {
+              url: '/database/windshaft_test/layergroup?'
+                + querystring.stringify({
+                    'config': JSON.stringify(layergroup)
+                  }),
+              method: 'GET',
+              headers: {'Content-Type': 'application/json' }
+          }, {}, function(res) { next(null, res); });
+        },
+        function check_map(err, res) {
+          if ( err ) throw err;
+          assert.equal(res.statusCode, 200, res.statusCode + ':' + res.body);
+          // CORS headers should be sent with response
+          // from layergroup creation via GET
+          // see https://github.com/CartoDB/Windshaft/issues/92
+          checkCORSHeaders(res);
+          var parsedBody = JSON.parse(res.body);
+          if ( expected_token ) assert.deepEqual(parsedBody, {layergroupid: expected_token, layercount: 2});
+          else expected_token = parsedBody.layergroupid;
+          return null;
+        },
+        function get_tile(err)
+        {
+          if ( err ) throw err;
+          var next = this;
+          assert.response(server, {
+              url: '/database/windshaft_test/layergroup/' + expected_token
+                + '/12/2008/1544.png',
+              method: 'GET',
+              encoding: 'binary'
+          }, {}, function(res, err) {
+              next(err, res);
+          });
+        },
+        function check_tile(err, res)
+        {
+          if ( err ) throw err;
+          var next = this;
+          assert.equal(res.statusCode, 200, res.body);
+          assert.equal(res.headers['content-type'], "image/png");
+          assert.imageEqualsFile(res.body,
+              './test/fixtures/vector.coastline.1.1.1.png',
               IMAGE_EQUALS_TOLERANCE_PER_MIL, this);
         },
         function finish(err) {
