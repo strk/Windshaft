@@ -243,7 +243,7 @@ suite('mvt', function() {
       );
     });
 
-    test.skip("uncompressed", function(done) {
+    test("uncompressed", function(done) {
 
       var layergroup =  {
         // TODO: increment minor version, for 'datasource' support 
@@ -251,7 +251,7 @@ suite('mvt', function() {
         datasource: 'fs2',
         layers: [
            { options: {
-               sql: 'roads',
+               sql: 'coastline',
                cartocss: '#layer { line-color:black; line-width:1; }', 
                cartocss_version: '2.0.1'
              } }
@@ -290,7 +290,7 @@ suite('mvt', function() {
           var next = this;
           assert.response(server, {
               url: '/database/windshaft_test/layergroup/' + expected_token
-                + '/12/2008/1544.png',
+                + '/1/1/1.png',
               method: 'GET',
               encoding: 'binary'
           }, {}, function(res, err) {
