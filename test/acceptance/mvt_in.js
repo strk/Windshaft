@@ -36,7 +36,7 @@ suite('mvt', function() {
         tiles: "http://localhost:" + res_serv_port + "/vector.coastline.1.1.1.pbfz"
       },
       'sql': {
-        postgres: global.environment.postgres
+        postgres: true
       }
     };
     var IMAGE_EQUALS_TOLERANCE_PER_MIL = 20;
@@ -329,7 +329,7 @@ suite('mvt', function() {
       );
     });
 
-    test.skip("layers are rendered in definition order", function(done) {
+    test.skip("postgres", function(done) {
 
       var layergroup =  {
         // TODO: increment minor version, for 'datasource' support 
