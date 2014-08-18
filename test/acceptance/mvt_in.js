@@ -34,6 +34,9 @@ suite('mvt', function() {
       },
       'http': {
         tiles: "http://localhost:" + res_serv_port + "/vector.coastline.1.1.1.pbfz"
+      },
+      'sql': {
+        postgres: global.environment.postgres
       }
     };
     var IMAGE_EQUALS_TOLERANCE_PER_MIL = 20;
@@ -313,6 +316,81 @@ suite('mvt', function() {
             if ( ! expected_token ) { done(err); return; }
             errors.push('' + err);
           }
+          redis_client.exists("map_cfg|" +  expected_token, function(err, exists) {
+              if ( err ) errors.push(err.message);
+              assert.ok(exists, "Missing expected token " + expected_token + " from redis");
+              redis_client.del("map_cfg|" +  expected_token, function(err) {
+                if ( err ) errors.push(err.message);
+                if ( errors.length ) done(new Error(errors));
+                else done(null);
+              });
+          });
+        }
+      );
+    });
+
+    test.skip("layers are rendered in definition order", function(done) {
+
+      var layergroup =  {
+        // TODO: increment minor version, for 'datasource' support 
+        version: '1.0.1',
+        global_cartocss_version: '2.0.2',
+        datasource: 'sql',
+        layers: [
+           { options: {
+               sql: "select st_setsrid('LINESTRING(-60 -60,-60 60)'::geometry, 4326) as the_geom",
+               cartocss: '#layer { line-width:16; line-color:#ff0000; }'
+             } },
+           { options: {
+               sql: "select st_setsrid('LINESTRING(-100 0,100 0)'::geometry, 4326) as the_geom",
+               cartocss: '#layer { line-width:16; line-color:#00ff00; }'
+             } },
+           { options: {
+               sql: "select st_setsrid('LINESTRING(60 -60,60 60)'::geometry, 4326) as the_geom",
+               cartocss: '#layer { line-width:16; line-color:#0000ff; }'
+             } }
+        ]
+      };
+
+      var expected_token; // = "32994445c0a4525432fcd7013bf6524c";
+      Step(
+        function do_post()
+        {
+          var next = this;
+          assert.response(server, {
+              url: '/database/windshaft_test/layergroup',
+              method: 'POST',
+              headers: {'Content-Type': 'application/json' },
+              data: JSON.stringify(layergroup)
+          }, {}, function(res) {
+            try {
+              assert.equal(res.statusCode, 200, res.body);
+              var parsedBody = JSON.parse(res.body);
+              if ( expected_token ) assert.deepEqual(parsedBody, {layergroupid: expected_token, layercount: 3});
+              else expected_token = parsedBody.layergroupid;
+              next(null, res);
+            } catch (err) { next(err); }
+          });
+        },
+        function do_get_tile(err)
+        {
+          if ( err ) throw err;
+          var next = this;
+          assert.response(server, {
+              url: '/database/windshaft_test/layergroup/' + expected_token + '/0/0/0.png',
+              method: 'GET',
+              encoding: 'binary'
+          }, {}, function(res) {
+              assert.equal(res.statusCode, 200, res.body);
+              assert.equal(res.headers['content-type'], "image/png");
+              assert.imageEqualsFile(res.body, './test/fixtures/test_table_0_0_0_multilayer4.png', IMAGE_EQUALS_TOLERANCE_PER_MIL, function(err) {
+                  next(err);
+              });
+          });
+        },
+        function finish(err) {
+          var errors = [];
+          if ( err ) errors.push(err.message);
           redis_client.exists("map_cfg|" +  expected_token, function(err, exists) {
               if ( err ) errors.push(err.message);
               assert.ok(exists, "Missing expected token " + expected_token + " from redis");
