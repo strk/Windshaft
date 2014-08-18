@@ -37,7 +37,8 @@
         "step-profiler": "git://github.com/CartoDB/node-step-profiler.git#0.1.0",
         "cartodb-psql": "https://github.com/CartoDB/node-cartodb-psql/tarball/0.4.0",
         "torque.js": "~2.2.0",
-        "node-statsd": "~0.0.7"
+        "node-statsd": "~0.0.7",
+        "varint": "~3.0.1"
     },
     "devDependencies": {
         "mocha": "~1.14.0",
