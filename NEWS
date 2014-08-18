@@ -1,6 +1,3 @@
-Version 0.24.0
-2014-mm-dd
-
  New features:
 
  - Add support for raster layers (#190)
@@ -9,6 +6,31 @@ Version 0.24.0
  Bug fixes:
 
  - Support specifying column name in MapConfig (#191)
+
+Version 0.25.0
+2014-mm-dd
+
+New features:
+ - Deprecates psql and starts using cartodb-psql module
+
+Version 0.24.1
+2014-08-13
+
+Enhancements:
+ - Checks mapnik version for grainstore is configured, otherwise it uses
+   installed one
+
+
+Version 0.24.0
+2014-08-13
+
+ Enhancements:
+ - Upgrades dependencies:
+    - underscore
+    - grainstore
+    - redis-mpool
+    - pg
+ - Specifies name in the redis pool
 
 Version 0.23.0
 2014-08-07
