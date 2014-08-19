@@ -37,6 +37,7 @@ suite('mvt', function() {
       },
       'sql': {
         postgres: true
+        //tiles: "file://test.pbf"
       }
     };
     var IMAGE_EQUALS_TOLERANCE_PER_MIL = 20;
@@ -380,7 +381,7 @@ suite('mvt', function() {
         layers: [
            { options: {
                //sql: "layer0",
-               sql: "select st_setsrid('LINESTRING(-60 -60,-60 60)'::geometry, 4326) as the_geom",
+               sql: "select st_segmentize(st_setsrid('LINESTRING(-60 -60,-60 60)'::geometry, 4326),2) as the_geom",
                cartocss: '#layer { line-width:16; line-color:#ff0000; }'
                //sql: "select st_setsrid('POINT(0 0)'::geometry, 4326) as the_geom",
                //cartocss: '#layer { marker-fill:red; marker-width:32; marker-allow-overlap:true; }'
