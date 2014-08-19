@@ -80,6 +80,47 @@ suite('mvt', function() {
 
     });
 
+    test("unknown datasource", function(done) {
+
+      var layergroup =  {
+        // TODO: increment minor version, for 'datasource' support 
+        version: '1.1.0',
+        datasource: 'unknown',
+        layers: [
+           { options: {
+               sql: 'coastline',
+               cartocss: '#layer { line-color:black; }', 
+               cartocss_version: '2.0.1'
+             } }
+        ]
+      };
+      var expected_token; 
+      Step(
+        function create_map()
+        {
+          var next = this;
+          assert.response(server, {
+              url: '/database/windshaft_test/layergroup?'
+                + querystring.stringify({
+                    'config': JSON.stringify(layergroup)
+                  }),
+              method: 'GET',
+              headers: {'Content-Type': 'application/json' }
+          }, {}, function(res) { next(null, res); });
+        },
+        function check_map(err, res) {
+          assert.equal(res.statusCode, 400, res.statusCode + ':' + res.body);
+          var parsedBody = JSON.parse(res.body);
+          var err = parsedBody.errors;
+          assert.equal(err, "Unknown datasource 'unknown'");
+          return null;
+        },
+        function finish(err) {
+          done(err);
+        }
+      );
+    });
+
     test("simple", function(done) {
 
       var layergroup =  {
