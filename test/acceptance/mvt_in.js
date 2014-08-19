@@ -329,7 +329,7 @@ suite('mvt', function() {
       );
     });
 
-    test.skip("postgres", function(done) {
+    test("postgres", function(done) {
 
       var layergroup =  {
         // TODO: increment minor version, for 'datasource' support 
@@ -338,16 +338,23 @@ suite('mvt', function() {
         datasource: 'sql',
         layers: [
            { options: {
+               //sql: "layer0",
                sql: "select st_setsrid('LINESTRING(-60 -60,-60 60)'::geometry, 4326) as the_geom",
                cartocss: '#layer { line-width:16; line-color:#ff0000; }'
-             } },
+               //sql: "select st_setsrid('POINT(0 0)'::geometry, 4326) as the_geom",
+               //cartocss: '#layer { marker-fill:red; marker-width:32; marker-allow-overlap:true; }'
+             } } ,
            { options: {
+               //sql: "layer1",
                sql: "select st_setsrid('LINESTRING(-100 0,100 0)'::geometry, 4326) as the_geom",
                cartocss: '#layer { line-width:16; line-color:#00ff00; }'
              } },
            { options: {
+               //sql: "layer2",
                sql: "select st_setsrid('LINESTRING(60 -60,60 60)'::geometry, 4326) as the_geom",
                cartocss: '#layer { line-width:16; line-color:#0000ff; }'
+               //sql: "select st_buffer(st_setsrid('LINESTRING(-60 -60,-60 60,0 0, 0.1 0, 0 0.1)'::geometry, 4326), 1) as the_geom",
+               //cartocss: '#layer { line-width:16; line-color:#ff0000; polygon-fill:blue; }'
              } }
         ]
       };
