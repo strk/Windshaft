@@ -30,6 +30,7 @@
         "request": "~2.34.0",
         "tilelive-mapnik": "~0.6.9",
         "tilelive-vector": "~2.0.3",
+        "tilelive-bridge": "~0.5.0",
         "mapnik": "~1.4.10",
         "semver": "~1.1.4",
         "redis-mpool": "git://github.com/CartoDB/node-redis-mpool.git#0.1.0",
