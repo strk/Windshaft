@@ -301,4 +301,29 @@ assert.utfgridEqualsFile = function(buffer, file_b, tolerance, callback) {
     callback(err);
 };
 
+assert.mvtEqualsFile = function(obtMVT, refMVTRelPath, callback) {
+    if (!callback) callback = function(err) { if (err) throw err; };
+    var refMVTPath = path.resolve(refMVTRelPath);
+    // Save obtained
+    var obtMVTPath = refMVTPath + '.obt';
+    fs.writeFileSync(obtMVTPath, obtMVT, 'binary');
+    // Read expected
+    var refMVT = fs.readFileSync(refMVTPath, 'binary');
+    // Read obtained 
+    obtMVT = fs.readFileSync(obtMVTPath, 'binary');
+    try {
+      assert.equal(typeof refMVT, typeof obtMVT);
+      assert.equal(refMVT.length, obtMVT.length);
+      for (var i=0; i<refMVT.length; ++i) {
+        assert.equal(refMVT[i], obtMVT[i]);
+      }
+    } catch (err) {
+      console.log('Obtained file: ' + obtMVTPath);
+      console.log(err.stack);
+      callback(err);
+      return;
+    }
+    fs.unlinkSync(obtMVTPath);
+    callback(null);
+};
 
